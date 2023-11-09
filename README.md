@@ -1,0 +1,2 @@
+# oss_preprocessor
+lockファイルからライブラリのdiffを収集する予定
