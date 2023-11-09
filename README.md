@@ -1,2 +1,2 @@
 # oss_preprocessor
-lockファイルからライブラリのdiffを収集する予定
+lockファイルからライブラリを取得し、最新バージョンとのdiffを収集する予定
