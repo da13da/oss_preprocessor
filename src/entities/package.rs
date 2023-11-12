@@ -1,19 +1,15 @@
 use serde::Deserialize;
 
-
-#[derive(Deserialize, Debug, PartialEq)]
+#[derive(Debug, Deserialize)]
 pub struct Package {
-    pub category: Option<String>,
-    pub description: String,
     pub name: String,
-    pub optional: bool,
-    #[serde(rename(deserialize = "python-versions"))]
-    pub python_versions: String,
     pub version: String,
+    pub source: Source,
 }
 
-#[derive(Deserialize, Debug, PartialEq)]
-pub struct LockFile {
-    #[serde(rename(deserialize = "package"))]
-    pub packages: Vec<Package>,
+#[derive(Debug, Deserialize)]
+pub enum Source {
+    pypi,
+    npm,
+    gem
 }

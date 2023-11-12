@@ -10,27 +10,16 @@ use crate::entities::package::Package;
 
 mod pipfile;
 mod poetry;
+pub mod error;
 use self::pipfile::PipfileParser;
 use self::poetry::PoetryParser;
 
 pub trait Parser {
-    fn parse(&self, data: &String) -> Result<Vec<Package>, ParseError>;
-}
-
-#[derive(Debug)]
-pub enum ParseError {
-    TomlError(toml::de::Error),
-}
-
-impl From<toml::de::Error> for ParseError {
-    fn from(err: toml::de::Error) -> Self {
-        ParseError::TomlError(err)
-    }
+    fn parse(&self, file_path: &PathBuf) -> Result<Vec<Package>, error::ParseError>;
 }
 
 pub struct LockFileParseClient {
     pub file_path: PathBuf,
-    pub lock_file_str: String,
     pub parser: Box<dyn Parser>,
 }
 
@@ -45,8 +34,6 @@ impl LockFileParseClient {
         }
 
         let path = path_buf.as_path();
-        let lock_file_str = read_to_string(path)
-            .expect("lock file read failed");
 
         let parser = Self::resolve_parser(&file_name);
         if parser.is_none() {
@@ -58,13 +45,12 @@ impl LockFileParseClient {
 
         Ok(Self {
             file_path: path_buf,
-            lock_file_str: lock_file_str,
             parser: parser.unwrap(),
         })
     }
 
-    pub fn parse(&self) -> Result<Vec<Package>, ParseError> {
-        self.parser.parse(&self.lock_file_str)
+    pub fn parse(&self) -> Result<Vec<Package>, error::ParseError> {
+        self.parser.parse(&self.file_path)
     }
 
     fn resolve_parser(file_name: &Cow<str>) -> Option<Box<dyn Parser>> {

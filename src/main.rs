@@ -29,5 +29,5 @@ fn main() {
     // println!("file={:?}", lock_file_parse_client.lock_file_str);
 
     let packages = lock_file_parse_client.parse().unwrap();
-    println!("{:?}", packages[0]);
+    println!("{:?}", packages);
 }
