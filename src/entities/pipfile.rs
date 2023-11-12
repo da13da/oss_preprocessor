@@ -1,11 +1,11 @@
-use thiserror::Error;
 use std::{collections::HashMap, fmt::Display, io::Read};
+use thiserror::Error;
 
 use serde::Deserialize;
-use serde_json::{from_slice, from_reader};
+use serde_json::{from_reader, from_slice};
 
-use crate::parsers::error::ParseError;
 use crate::entities::package::{Package, Source};
+use crate::parsers::error::ParseError;
 
 #[derive(Debug, Deserialize)]
 pub struct Meta {
@@ -45,7 +45,9 @@ pub struct PipfileLock {
 impl PipfileLock {
     fn validate(self) -> Result<Self, ParseError> {
         if self.meta.pipfile_spec != 6 {
-            return Err(ParseError::IncompatiblePipfileLockSpec(self.meta.pipfile_spec));
+            return Err(ParseError::IncompatiblePipfileLockSpec(
+                self.meta.pipfile_spec,
+            ));
         }
 
         Ok(self)
@@ -64,7 +66,8 @@ impl PipfileLock {
     }
 
     pub fn to_common_packages(&self) -> Vec<Package> {
-        self.default.iter()
+        self.default
+            .iter()
             .filter_map(|(name, dependency)| {
                 if let Dependency::Pip { version } = dependency {
                     Some(Package {

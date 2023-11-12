@@ -1,16 +1,16 @@
-use std::error::Error;
-use std::fs::{File, read_to_string};
-use std::{fs, io};
-use std::borrow::Cow;
-use std::path::{Path, PathBuf};
 use serde_json::Value;
+use std::borrow::Cow;
+use std::error::Error;
+use std::fs::{read_to_string, File};
+use std::path::{Path, PathBuf};
+use std::{fs, io};
 use toml;
 
 use crate::entities::package::Package;
 
+pub mod error;
 mod pipfile;
 mod poetry;
-pub mod error;
 use self::pipfile::PipfileParser;
 use self::poetry::PoetryParser;
 
@@ -27,10 +27,7 @@ impl LockFileParseClient {
     pub fn new(path_buf: PathBuf) -> Result<Self, io::Error> {
         let file_name = path_buf.file_name().unwrap().to_string_lossy();
         if !Self::is_allowed_file(&file_name) {
-            return Err(io::Error::new(
-                io::ErrorKind::Other,
-                "File not allowed.",
-            ));
+            return Err(io::Error::new(io::ErrorKind::Other, "File not allowed."));
         }
 
         let path = path_buf.as_path();
@@ -62,8 +59,7 @@ impl LockFileParseClient {
     }
 
     fn is_allowed_file(file_name: &Cow<str>) -> bool {
-        let json_file = read_to_string("src/configs/allowed_files.json")
-            .expect("Json read failed");
+        let json_file = read_to_string("src/configs/allowed_files.json").expect("Json read failed");
         let allowed_files: Vec<String> = serde_json::from_str(&json_file).unwrap();
 
         allowed_files.contains(&file_name.to_string())

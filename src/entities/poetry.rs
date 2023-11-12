@@ -23,12 +23,13 @@ pub struct PoetryLockFile {
 
 impl PoetryLockFile {
     pub fn to_common_packages(&self) -> Vec<Package> {
-        self.packages.iter().map(|pkg| {
-            Package {
+        self.packages
+            .iter()
+            .map(|pkg| Package {
                 name: pkg.name.clone(),
                 version: pkg.version.clone(),
                 source: Source::pypi,
-            }
-        }).collect()
+            })
+            .collect()
     }
 }

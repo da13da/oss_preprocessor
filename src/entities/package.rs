@@ -11,5 +11,5 @@ pub struct Package {
 pub enum Source {
     pypi,
     npm,
-    gem
+    gem,
 }

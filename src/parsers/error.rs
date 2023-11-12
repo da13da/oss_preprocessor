@@ -1,5 +1,5 @@
-use thiserror::Error;
 use serde_json;
+use thiserror::Error;
 use toml;
 
 #[derive(Debug, Error)]

@@ -1,12 +1,12 @@
-use structopt::StructOpt;
-use toml;
 use regex::Regex;
 use std::path::{Path, PathBuf};
+use structopt::StructOpt;
+use toml;
 
-use crate::parsers::Parser;
-use crate::parsers::error::ParseError;
 use crate::entities::package::Package;
 use crate::entities::pipfile::PipfileLock;
+use crate::parsers::error::ParseError;
+use crate::parsers::Parser;
 
 pub struct PipfileParser {}
 
