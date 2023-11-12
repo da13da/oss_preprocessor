@@ -25,8 +25,6 @@ fn main() {
     println!("input = {:?}, format = {:?}", args.input, args.format);
 
     let lock_file_parse_client = parsers::LockFileParseClient::new(args.input).unwrap();
-    // println!("file={:?}", lock_file_parse_client.lock_file_str);
-
     let packages = lock_file_parse_client.parse().unwrap();
     println!("{:?}", packages);
 }
