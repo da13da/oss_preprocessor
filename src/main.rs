@@ -1,11 +1,11 @@
-use std::borrow::BorrowMut;
 use clap::{parser, Parser, ValueEnum};
-use std::path::PathBuf;
 use rustpython::vm::stdlib::builtins::print;
+use std::borrow::BorrowMut;
+use std::path::PathBuf;
 
 mod entities;
-mod parsers;
 mod external_apis;
+mod parsers;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -39,7 +39,7 @@ async fn main() {
             Err(err) => {
                 eprintln!("Error: {}", err);
                 None
-            },
+            }
         };
         package.latest_version = latest_version;
         println!("{:?}", package);

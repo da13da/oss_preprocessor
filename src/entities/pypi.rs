@@ -1,5 +1,5 @@
-use serde::{Deserialize, Serialize};
 use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 use crate::entities::date::deserialize_date;
@@ -29,7 +29,9 @@ impl PyPIPackageResponse {
         let mut latest_release: Option<(&String, &Vec<ReleaseInfo>)> = None;
         for (version, releases) in &self.releases {
             if let Some(release) = releases.iter().max_by_key(|r| &r.upload_time) {
-                if latest_release.is_none() || latest_release.unwrap().1[0].upload_time < release.upload_time {
+                if latest_release.is_none()
+                    || latest_release.unwrap().1[0].upload_time < release.upload_time
+                {
                     latest_release = Some((version, releases));
                 }
             }
