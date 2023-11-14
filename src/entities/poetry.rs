@@ -27,7 +27,8 @@ impl PoetryLockFile {
             .iter()
             .map(|pkg| Package {
                 name: pkg.name.clone(),
-                version: pkg.version.clone(),
+                current_version: pkg.version.clone(),
+                latest_version: None,
                 source: Source::pypi,
             })
             .collect()

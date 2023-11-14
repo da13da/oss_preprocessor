@@ -72,7 +72,8 @@ impl PipfileLock {
                 if let Dependency::Pip { version } = dependency {
                     Some(Package {
                         name: name.clone(),
-                        version: version.clone(),
+                        current_version: version.clone(),
+                        latest_version: None,
                         source: Source::pypi,
                     })
                 } else {
