@@ -1,9 +1,11 @@
+use clap::builder::Str;
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
 pub struct Package {
     pub name: String,
-    pub version: String,
+    pub current_version: String,
+    pub latest_version: Option<String>,
     pub source: Source,
 }
 

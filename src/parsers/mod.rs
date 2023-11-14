@@ -30,8 +30,6 @@ impl LockFileParseClient {
             return Err(io::Error::new(io::ErrorKind::Other, "File not allowed."));
         }
 
-        let path = path_buf.as_path();
-
         let parser = Self::resolve_parser(&file_name);
         if parser.is_none() {
             return Err(io::Error::new(
