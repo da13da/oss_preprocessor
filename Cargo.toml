@@ -8,6 +8,7 @@ edition = "2021"
 [dependencies]
 chrono = { version = "0.4.31", features = ["serde"] }
 clap = { version = "4.4.7", features = ["derive"] }
+dotenv = "0.15.0"
 regex = "1.10.2"
 reqwest = { version = "0.11.22", features = ["json"] }
 rustpython = "0.3.0"
