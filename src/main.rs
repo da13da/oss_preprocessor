@@ -33,15 +33,16 @@ async fn main() {
 
     let pypi_client = external_apis::pypi::PypiClient::new();
     for mut package in packages {
-        let package_details = pypi_client.get_package_details(package.name.as_str()).await;
-        let latest_version = match package_details {
-            Ok(package_details) => package_details.latest_version(),
+        let package_detail = pypi_client.get_package_detail(package.name.as_str()).await;
+        match package_detail {
+            Ok(package_detail) => {
+                package.latest_version = package_detail.latest_version();
+                package.homepage = package_detail.extract_git_url();
+            }
             Err(err) => {
                 eprintln!("Error: {}", err);
-                None
             }
         };
-        package.latest_version = latest_version;
         println!("{:?}", package);
     }
 }

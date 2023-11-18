@@ -1,7 +1,7 @@
 use reqwest;
 use serde_json;
 
-use crate::entities::pypi::PyPIPackageResponse;
+use crate::entities::pypi::PyPIPackageDetail;
 
 pub struct PypiClient {
     pub url: String,
@@ -16,10 +16,10 @@ impl PypiClient {
         }
     }
 
-    pub async fn get_package_details(
+    pub async fn get_package_detail(
         &self,
         package_name: &str,
-    ) -> Result<PyPIPackageResponse, reqwest::Error> {
+    ) -> Result<PyPIPackageDetail, reqwest::Error> {
         let url = format!("{}/{}/json", self.url, package_name);
         let response = self.client.get(&url).send().await?;
 

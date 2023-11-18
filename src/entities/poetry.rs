@@ -30,6 +30,7 @@ impl PoetryLockFile {
                 current_version: pkg.version.clone(),
                 latest_version: None,
                 source: Source::pypi,
+                homepage: None,
             })
             .collect()
     }
