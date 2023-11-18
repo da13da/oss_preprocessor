@@ -75,6 +75,7 @@ impl PipfileLock {
                         current_version: version.clone(),
                         latest_version: None,
                         source: Source::pypi,
+                        homepage: None,
                     })
                 } else {
                     None

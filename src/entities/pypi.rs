@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use crate::entities::date::deserialize_date;
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct PyPIPackageResponse {
+pub struct PyPIPackageDetail {
     pub info: PackageInfo,
     pub releases: HashMap<String, Vec<ReleaseInfo>>,
 }
@@ -14,6 +14,8 @@ pub struct PyPIPackageResponse {
 pub struct PackageInfo {
     pub name: String,
     pub version: String,
+    pub home_page: String,
+    pub project_urls: HashMap<String, String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -24,7 +26,7 @@ pub struct ReleaseInfo {
     pub upload_time: DateTime<Utc>,
 }
 
-impl PyPIPackageResponse {
+impl PyPIPackageDetail {
     pub fn latest_version(&self) -> Option<String> {
         let mut latest_release: Option<(&String, &Vec<ReleaseInfo>)> = None;
         for (version, releases) in &self.releases {
@@ -38,5 +40,26 @@ impl PyPIPackageResponse {
         }
 
         latest_release.map(|(version, _)| version.clone())
+    }
+
+    pub fn extract_git_url(&self) -> Option<String> {
+        if self.info.home_page.contains("github.com") {
+            return Some(self.info.home_page.clone());
+        }
+
+        for (managed_name, project_url) in &self.info.project_urls {
+            if project_url.contains("github.com") || project_url.contains("gitlab.com") {
+                if project_url.ends_with(self.info.name.as_str())
+                    || project_url.ends_with(self.info.name.replace("-", "_").as_str())
+                    || project_url
+                        .to_lowercase()
+                        .ends_with(self.info.name.to_lowercase().as_str())
+                {
+                    return Some(project_url.clone());
+                }
+            }
+        }
+
+        None
     }
 }
