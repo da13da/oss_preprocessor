@@ -16,7 +16,7 @@ impl PypiClient {
         }
     }
 
-    pub async fn get_package_detail(
+    pub async fn fetch_package_detail(
         &self,
         package_name: &str,
     ) -> Result<PyPIPackageDetail, reqwest::Error> {
