@@ -2,6 +2,8 @@ use clap::{parser, Parser, ValueEnum};
 use rustpython::vm::stdlib::builtins::print;
 use std::borrow::BorrowMut;
 use std::path::PathBuf;
+use std::env;
+use dotenv::dotenv;
 
 mod entities;
 mod external_apis;
@@ -27,6 +29,10 @@ enum Format {
 async fn main() {
     let args = Args::parse();
     println!("input = {:?}, format = {:?}", args.input, args.format);
+
+    dotenv().ok();
+    let github_token = env::var("GITHUB_TOKEN").expect("GITHUB_TOKEN is not set in .env");
+    println!("github_token: {:?}", github_token);
 
     let lock_file_parse_client = parsers::LockFileParseClient::new(args.input).unwrap();
     let mut packages = lock_file_parse_client.parse().unwrap();
