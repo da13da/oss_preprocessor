@@ -1,9 +1,9 @@
 use clap::{parser, Parser, ValueEnum};
+use dotenv::dotenv;
 use rustpython::vm::stdlib::builtins::print;
 use std::borrow::BorrowMut;
-use std::path::PathBuf;
 use std::env;
-use dotenv::dotenv;
+use std::path::PathBuf;
 
 mod entities;
 mod external_apis;
@@ -38,7 +38,7 @@ async fn main() {
     let mut packages = lock_file_parse_client.parse().unwrap();
 
     let pypi_client = external_apis::pypi::PypiClient::new();
-    for mut package in packages {
+    for package in &mut packages {
         let package_detail = pypi_client.get_package_detail(package.name.as_str()).await;
         match package_detail {
             Ok(package_detail) => {
@@ -50,5 +50,38 @@ async fn main() {
             }
         };
         println!("{:?}", package);
+    }
+
+    let github_client = external_apis::github::GithubClient::new();
+    for package in &packages {
+        let (owner, repo) = match package.extract_owner_repo() {
+            Some((owner, repo)) => (owner, repo),
+            None => {
+                println!("Invalid GitHub URL");
+                continue;
+            }
+        };
+
+        let latest_version = match &package.latest_version {
+            Some(latest_version) => latest_version,
+            None => {
+                println!("Invalid latest_version");
+                continue;
+            }
+        };
+
+        if latest_version == &package.current_version {
+            println!("version already latest");
+            continue;
+        };
+
+        let compare_data = github_client.fetch_latest_to_current_changes(
+            owner.as_str(),
+            repo.as_str(),
+            package.current_version.as_str(),
+            latest_version.as_str(),
+        ).await;
+
+        println!("{:?}", compare_data);
     }
 }

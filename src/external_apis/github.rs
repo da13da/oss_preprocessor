@@ -20,18 +20,16 @@ impl GithubClient {
         &self,
         owner_name: &str,
         package_name: &str,
-        latest: &str,
         current: &str,
+        latest: &str,
     ) -> Result<CompareData, reqwest::Error> {
         let url = format!(
             "{}/{}/{}/compare/{}...{}",
-            self.url,
-            owner_name,
-            package_name,
-            latest,
-            current
+            self.url, owner_name, package_name, latest, current
         );
-        let response = self.client
+        println!("fetch {:?}", url);
+        let compare_data = self
+            .client
             .get(&url)
             .header("User-Agent", "request")
             .send()
@@ -39,6 +37,7 @@ impl GithubClient {
             .json()
             .await?;
 
-        Ok(CompareData)
+        println!("{:?}", compare_data);
+        Ok(compare_data)
     }
 }
