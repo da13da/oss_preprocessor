@@ -30,12 +30,10 @@ async fn main() {
     println!("input = {:?}, format = {:?}", args.input, args.format);
 
     dotenv().ok();
-    let github_token = env::var("GITHUB_TOKEN")
-        .expect("GITHUB_TOKEN is not set in .env");
+    let github_token = env::var("GITHUB_TOKEN").expect("GITHUB_TOKEN is not set in .env");
     println!("github_token: {:?}", github_token);
 
-    let lock_file_parse_client = parsers::LockFileParseClient::new(args.input)
-        .unwrap();
+    let lock_file_parse_client = parsers::LockFileParseClient::new(args.input).unwrap();
     let mut packages = lock_file_parse_client.parse().unwrap();
 
     let pypi_client = external_apis::pypi::PypiClient::new();
@@ -59,7 +57,7 @@ async fn main() {
         let (owner, repo) = match package.extract_owner_repo() {
             Some((owner, repo)) => (owner, repo),
             None => {
-                println!("Invalid GitHub URL");
+                println!("Invalid GitHub URL for package {:?}", package.name);
                 continue;
             }
         };
@@ -67,26 +65,32 @@ async fn main() {
         let latest_version = match &package.latest_version {
             Some(latest_version) => latest_version,
             None => {
-                println!("Invalid latest_version");
+                println!("Invalid latest_version for package {:?}", package.name);
                 continue;
             }
         };
 
         if latest_version == &package.current_version {
-            println!("{:?} is already latest version", package.name);
+            println!("{:?} is already the latest version", package.name);
             continue;
         };
 
-        let tags = github_client
-            .fetch_tags(
-                owner.as_str(),
-                repo.as_str(),
-            )
+        let tags = match github_client
+            .fetch_tags(owner.as_str(), repo.as_str())
             .await
-            .unwrap();
+        {
+            Ok(tags) => tags,
+            Err(err) => {
+                println!(
+                    "Error fetching tags for package {:?}: {}",
+                    package.name, err
+                );
+                continue;
+            }
+        };
 
-        let latest_tag = tags.iter().find(| &tag | tag.name == *latest_version);
-        let current_tag = tags.iter().find(| &tag | tag.name == package.current_version);
+        let latest_tag = tags.iter().find(|&tag| tag.name == *latest_version);
+        let current_tag = tags.iter().find(|&tag| tag.name == package.current_version);
 
         if let (Some(latest_tag), Some(current_tag)) = (latest_tag, current_tag) {
             let compare_data = github_client
@@ -95,13 +99,16 @@ async fn main() {
                     repo.as_str(),
                     current_tag.commit.sha.as_str(),
                     latest_tag.commit.sha.as_str(),
-                ).await;
+                )
+                .await;
 
             // println!("{:?}", compare_data);
         } else {
-            println!("Failed to extract {:?} tag: latest={:?} current={:?}", package.name, latest_version, package.current_version);
-            continue
+            println!(
+                "Failed to extract {:?} tag: latest={:?} current={:?}",
+                package.name, latest_version, package.current_version
+            );
+            continue;
         }
-
     }
 }
