@@ -78,22 +78,31 @@ async fn main() {
             continue;
         };
 
-        let latest_release = github_client
-            .fetch_release_info(
+        let tags = github_client
+            .fetch_tags(
                 owner.as_str(),
                 repo.as_str(),
-                latest_version.as_str()
             )
             .await
             .unwrap();
-        let current_release = github_client
-            .fetch_release_info(
-                owner.as_str(),
-                repo.as_str(),
-                package.current_version.as_str()
-            )
-            .await
-            .unwrap();
+        println!("{:?}", tags);
+
+        // let latest_release = github_client
+        //     .fetch_release_info(
+        //         owner.as_str(),
+        //         repo.as_str(),
+        //         latest_version.as_str()
+        //     )
+        //     .await
+        //     .unwrap();
+        // let current_release = github_client
+        //     .fetch_release_info(
+        //         owner.as_str(),
+        //         repo.as_str(),
+        //         package.current_version.as_str()
+        //     )
+        //     .await
+        //     .unwrap();
 
         let compare_data = github_client
             .fetch_latest_to_current_changes(

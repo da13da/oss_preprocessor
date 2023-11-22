@@ -1,7 +1,8 @@
 use reqwest;
+use serde::de::Error;
 use serde_json;
 
-use crate::entities::github::{CompareData, Release};
+use crate::entities::github::{CompareData, Release, Tag};
 
 pub struct GithubClient {
     pub url: String,
@@ -44,6 +45,28 @@ impl GithubClient {
         Ok(release)
     }
 
+    pub async fn fetch_tags(
+        &self,
+        owner_name: &str,
+        package_name: &str,
+    ) -> Result<Vec<Tag>, reqwest::Error> {
+        let url = format!(
+            "{}/{}/{}/tags",
+            self.url, owner_name, package_name
+        );
+
+        let tags = self
+            .client
+            .get(&url)
+            .header("Authorization", format!("Bearer {}", &self.personal_token))
+            .send()
+            .await?
+            .json()
+            .await?;
+
+        Ok(tags)
+    }
+
     pub async fn fetch_latest_to_current_changes(
         &self,
         owner_name: &str,
@@ -56,7 +79,6 @@ impl GithubClient {
             self.url, owner_name, package_name, base, head
         );
 
-        println!("fetch: {:?}", url);
         let compare_data = self
             .client
             .get(&url)
