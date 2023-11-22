@@ -8,7 +8,6 @@ pub struct GithubClient {
     pub url: String,
     personal_token: String,
     client: reqwest::Client,
-
 }
 
 impl GithubClient {
@@ -20,7 +19,7 @@ impl GithubClient {
         }
     }
 
-    async fn send(&self, url: String) -> Result<reqwest::Response, FetchError>{
+    async fn send(&self, url: String) -> Result<reqwest::Response, FetchError> {
         let response = self
             .client
             .get(&url)
@@ -41,16 +40,9 @@ impl GithubClient {
         owner_name: &str,
         package_name: &str,
     ) -> Result<Vec<Tag>, FetchError> {
-        let url = format!(
-            "{}/{}/{}/tags",
-            self.url, owner_name, package_name
-        );
+        let url = format!("{}/{}/{}/tags", self.url, owner_name, package_name);
 
-        let tags = self
-            .send(url)
-            .await?
-            .json::<Vec<Tag>>()
-            .await?;
+        let tags = self.send(url).await?.json::<Vec<Tag>>().await?;
 
         Ok(tags)
     }
@@ -67,11 +59,7 @@ impl GithubClient {
             self.url, owner_name, package_name, base, head
         );
 
-        let compare_data = self
-            .send(url)
-            .await?
-            .json()
-            .await?;
+        let compare_data = self.send(url).await?.json().await?;
 
         Ok(compare_data)
     }

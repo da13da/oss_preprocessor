@@ -28,9 +28,7 @@ impl PypiClient {
             return Err(FetchError::StatusCode(response.status().as_u16()));
         }
 
-        let package_detail = response
-            .json()
-            .await?;
+        let package_detail = response.json().await?;
 
         Ok(package_detail)
     }

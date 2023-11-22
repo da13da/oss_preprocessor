@@ -100,4 +100,3 @@ pub struct File {
 fn default_patch_value() -> String {
     "".to_string()
 }
-
