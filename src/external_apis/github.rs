@@ -1,8 +1,8 @@
 use reqwest;
-use serde::de::Error;
 use serde_json;
 
-use crate::entities::github::{CompareData, Release, Tag};
+use crate::entities::github::{CompareData, Tag};
+use crate::external_apis::error::FetchError;
 
 pub struct GithubClient {
     pub url: String,
@@ -20,48 +20,36 @@ impl GithubClient {
         }
     }
 
-    pub async fn fetch_release_info(
-        &self,
-        owner_name: &str,
-        package_name: &str,
-        version: &str
-    ) -> Result<Release, reqwest::Error> {
-        let url = format!(
-            "{}/{}/{}/releases/{}",
-            self.url, owner_name, package_name, version,
-        );
-
-        println!("fetch: {:?}", url);
-        let release = self
+    async fn send(&self, url: String) -> Result<reqwest::Response, FetchError>{
+        let response = self
             .client
             .get(&url)
+            .header("User-Agent", "request")
             .header("Authorization", format!("Bearer {}", &self.personal_token))
             .send()
-            .await?
-            .json()
             .await?;
 
-        println!("release: {:?}", release);
-        Ok(release)
+        if response.status() != 200 {
+            return Err(FetchError::StatusCode(response.status().as_u16()));
+        }
+
+        Ok(response)
     }
 
     pub async fn fetch_tags(
         &self,
         owner_name: &str,
         package_name: &str,
-    ) -> Result<Vec<Tag>, reqwest::Error> {
+    ) -> Result<Vec<Tag>, FetchError> {
         let url = format!(
             "{}/{}/{}/tags",
             self.url, owner_name, package_name
         );
 
         let tags = self
-            .client
-            .get(&url)
-            .header("Authorization", format!("Bearer {}", &self.personal_token))
-            .send()
+            .send(url)
             .await?
-            .json()
+            .json::<Vec<Tag>>()
             .await?;
 
         Ok(tags)
@@ -73,22 +61,18 @@ impl GithubClient {
         package_name: &str,
         base: &str,
         head: &str,
-    ) -> Result<CompareData, reqwest::Error> {
+    ) -> Result<CompareData, FetchError> {
         let url = format!(
             "{}/{}/{}/compare/{}...{}",
             self.url, owner_name, package_name, base, head
         );
 
         let compare_data = self
-            .client
-            .get(&url)
-            .header("Authorization", format!("Bearer {}", &self.personal_token))
-            .send()
+            .send(url)
             .await?
             .json()
             .await?;
 
-        println!("{:?}", compare_data);
         Ok(compare_data)
     }
 }

@@ -41,7 +41,7 @@ async fn main() {
     let pypi_client = external_apis::pypi::PypiClient::new();
     for package in &mut packages {
         let package_detail = pypi_client
-            .get_package_detail(package.name.as_str())
+            .fetch_package_detail(package.name.as_str())
             .await;
         match package_detail {
             Ok(package_detail) => {
@@ -52,7 +52,6 @@ async fn main() {
                 eprintln!("Error: {}", err);
             }
         };
-        println!("{:?}", package);
     }
 
     let github_client = external_apis::github::GithubClient::new(github_token);
@@ -74,7 +73,7 @@ async fn main() {
         };
 
         if latest_version == &package.current_version {
-            println!("version already latest");
+            println!("{:?} is already latest version", package.name);
             continue;
         };
 
@@ -85,33 +84,24 @@ async fn main() {
             )
             .await
             .unwrap();
-        println!("{:?}", tags);
 
-        // let latest_release = github_client
-        //     .fetch_release_info(
-        //         owner.as_str(),
-        //         repo.as_str(),
-        //         latest_version.as_str()
-        //     )
-        //     .await
-        //     .unwrap();
-        // let current_release = github_client
-        //     .fetch_release_info(
-        //         owner.as_str(),
-        //         repo.as_str(),
-        //         package.current_version.as_str()
-        //     )
-        //     .await
-        //     .unwrap();
+        let latest_tag = tags.iter().find(| &tag | tag.name == *latest_version);
+        let current_tag = tags.iter().find(| &tag | tag.name == package.current_version);
 
-        let compare_data = github_client
-            .fetch_latest_to_current_changes(
-                owner.as_str(),
-                repo.as_str(),
-                latest_release.tag_name.as_str(),
-                current_release.tag_name.as_str(),
-            ).await;
+        if let (Some(latest_tag), Some(current_tag)) = (latest_tag, current_tag) {
+            let compare_data = github_client
+                .fetch_latest_to_current_changes(
+                    owner.as_str(),
+                    repo.as_str(),
+                    current_tag.commit.sha.as_str(),
+                    latest_tag.commit.sha.as_str(),
+                ).await;
 
-        println!("{:?}", compare_data);
+            // println!("{:?}", compare_data);
+        } else {
+            println!("Failed to extract {:?} tag: latest={:?} current={:?}", package.name, latest_version, package.current_version);
+            continue
+        }
+
     }
 }
