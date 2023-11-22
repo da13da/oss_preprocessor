@@ -2,6 +2,7 @@ use reqwest;
 use serde_json;
 
 use crate::entities::pypi::PyPIPackageDetail;
+use crate::external_apis::error::FetchError;
 
 pub struct PypiClient {
     pub url: String,
@@ -16,13 +17,21 @@ impl PypiClient {
         }
     }
 
-    pub async fn get_package_detail(
+    pub async fn fetch_package_detail(
         &self,
         package_name: &str,
-    ) -> Result<PyPIPackageDetail, reqwest::Error> {
+    ) -> Result<PyPIPackageDetail, FetchError> {
         let url = format!("{}/{}/json", self.url, package_name);
-        let response = self.client.get(&url).send().await?;
 
-        response.json().await
+        let response = self.client.get(&url).send().await?;
+        if response.status() != 200 {
+            return Err(FetchError::StatusCode(response.status().as_u16()));
+        }
+
+        let package_detail = response
+            .json()
+            .await?;
+
+        Ok(package_detail)
     }
 }
