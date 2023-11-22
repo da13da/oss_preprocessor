@@ -1,2 +1,3 @@
 # oss_preprocessor
-lockファイルからライブラリを取得し、最新バージョンとのdiffを収集する予定
+lockファイルからライブラリを取得し、最新バージョンとのdiffを収集し、取得したdiffをそれぞれの言語のASTにparseする。
+parse後前処理した結果をoutputし、機械学習に使用する。
