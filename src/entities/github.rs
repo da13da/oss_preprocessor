@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Release {
-    tag_name: String,
+    pub tag_name: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

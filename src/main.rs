@@ -1,6 +1,5 @@
 use clap::{parser, Parser, ValueEnum};
 use dotenv::dotenv;
-use rustpython::vm::stdlib::builtins::print;
 use std::borrow::BorrowMut;
 use std::env;
 use std::path::PathBuf;
@@ -31,15 +30,19 @@ async fn main() {
     println!("input = {:?}, format = {:?}", args.input, args.format);
 
     dotenv().ok();
-    let github_token = env::var("GITHUB_TOKEN").expect("GITHUB_TOKEN is not set in .env");
+    let github_token = env::var("GITHUB_TOKEN")
+        .expect("GITHUB_TOKEN is not set in .env");
     println!("github_token: {:?}", github_token);
 
-    let lock_file_parse_client = parsers::LockFileParseClient::new(args.input).unwrap();
+    let lock_file_parse_client = parsers::LockFileParseClient::new(args.input)
+        .unwrap();
     let mut packages = lock_file_parse_client.parse().unwrap();
 
     let pypi_client = external_apis::pypi::PypiClient::new();
     for package in &mut packages {
-        let package_detail = pypi_client.get_package_detail(package.name.as_str()).await;
+        let package_detail = pypi_client
+            .get_package_detail(package.name.as_str())
+            .await;
         match package_detail {
             Ok(package_detail) => {
                 package.latest_version = package_detail.latest_version();
@@ -52,7 +55,7 @@ async fn main() {
         println!("{:?}", package);
     }
 
-    let github_client = external_apis::github::GithubClient::new();
+    let github_client = external_apis::github::GithubClient::new(github_token);
     for package in &packages {
         let (owner, repo) = match package.extract_owner_repo() {
             Some((owner, repo)) => (owner, repo),
@@ -75,12 +78,30 @@ async fn main() {
             continue;
         };
 
-        let compare_data = github_client.fetch_latest_to_current_changes(
-            owner.as_str(),
-            repo.as_str(),
-            package.current_version.as_str(),
-            latest_version.as_str(),
-        ).await;
+        let latest_release = github_client
+            .fetch_release_info(
+                owner.as_str(),
+                repo.as_str(),
+                latest_version.as_str()
+            )
+            .await
+            .unwrap();
+        let current_release = github_client
+            .fetch_release_info(
+                owner.as_str(),
+                repo.as_str(),
+                package.current_version.as_str()
+            )
+            .await
+            .unwrap();
+
+        let compare_data = github_client
+            .fetch_latest_to_current_changes(
+                owner.as_str(),
+                repo.as_str(),
+                latest_release.tag_name.as_str(),
+                current_release.tag_name.as_str(),
+            ).await;
 
         println!("{:?}", compare_data);
     }
