@@ -1,5 +1,4 @@
 use clap::{parser, Parser, ValueEnum};
-use rustpython::vm::stdlib::builtins::print;
 use std::borrow::BorrowMut;
 use std::path::PathBuf;
 
