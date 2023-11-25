@@ -102,7 +102,7 @@ async fn main() {
                 )
                 .await;
             if compare_data.is_err() {
-                continue
+                continue;
             }
             for file in compare_data.unwrap().files {
                 match parsers::diff::parse_file_diff(file.patch.as_str()) {
