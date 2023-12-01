@@ -1,4 +1,5 @@
 [
   "Pipfile.lock",
-  "poetry.lock"
+  "poetry.lock",
+  "yarn.lock"
 ]
