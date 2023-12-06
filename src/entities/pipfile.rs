@@ -5,7 +5,7 @@ use serde::Deserialize;
 use serde_json::{from_reader, from_slice};
 
 use crate::entities::package::{Package, Source};
-use crate::parsers::error::ParseError;
+use crate::parsers::lockfile::error::ParseError;
 
 #[derive(Debug, Deserialize)]
 pub struct Meta {
