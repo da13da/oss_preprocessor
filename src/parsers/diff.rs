@@ -1,38 +1,60 @@
-use nom::{
-    bytes::complete::{tag, take_until},
-    character::complete::newline,
-    multi::{many0, many1},
-    sequence::{preceded, tuple},
-    IResult,
-};
+use regex::Regex;
 
 use crate::entities::diff::{DiffChange, DiffLineChange, FileDiff};
 
-fn parse_line_change(input: &str) -> IResult<&str, DiffLineChange> {
-    let (input, removed) = preceded(tag("-"), take_until("\n"))(input)?;
-    let (input, _) = newline(input)?;
-    let (input, added) = preceded(tag("+"), take_until("\n"))(input)?;
-    let (input, _) = newline(input)?;
-    Ok((
-        input,
-        DiffLineChange {
-            removed: removed.to_string(),
-            added: added.to_string(),
-        },
-    ))
-}
+pub struct DiffParser {}
 
-fn parse_diff_change(input: &str) -> IResult<&str, DiffChange> {
-    let (input, line_changes) = many1(parse_line_change)(input)?;
-    Ok((input, DiffChange { line_changes }))
-}
+impl DiffParser {
+    pub fn new() -> Self {
+        DiffParser {}
+    }
 
-pub fn parse_file_diff(input: &str) -> IResult<&str, FileDiff> {
-    let (input, _) = tag("@@")(input)?;
-    let (input, _) = take_until("@@")(input)?;
-    let (input, _) = tag("@@")(input)?;
-    let (input, _) = newline(input)?;
+    pub fn parse_file_diff(&self, diff_file: &str) -> FileDiff {
+        let re = Regex::new(r"@@ -\d+,\d+ \+\d+,\d+ @@").unwrap();
+        let mut start = 0;
 
-    let (input, changes) = many0(parse_diff_change)(input)?;
-    Ok((input, FileDiff { changes }))
+        let mut changes: Vec<DiffChange> = Vec::new();
+        for mat in re.find_iter(diff_file) {
+            let matched_text = &diff_file[start..mat.start()];
+            match self.reconstruct_versions(matched_text) {
+                Some(change) => changes.push(change),
+                None => continue,
+            }
+            start = mat.end();
+        }
+
+        if start < diff_file.len() {
+            let remaining_text = &diff_file[start..];
+            match self.reconstruct_versions(remaining_text) {
+                Some(change) => changes.push(change),
+                None => {}
+            }
+        }
+
+        FileDiff { changes: changes }
+    }
+
+    fn reconstruct_versions(&self, diff_text: &str) -> Option<DiffChange> {
+        let mut removed_version = String::new();
+        let mut added_version = String::new();
+
+        for line in diff_text.lines() {
+            if line.starts_with("-") {
+                removed_version.push_str(&line[1..]);
+                removed_version.push('\n');
+            } else if line.starts_with("+") {
+                added_version.push_str(&line[1..]);
+                added_version.push('\n');
+            }
+        }
+
+        if added_version.is_empty() && removed_version.is_empty() {
+            return None;
+        }
+
+        Some(DiffChange {
+            added_code: added_version,
+            removed_code: removed_version,
+        })
+    }
 }

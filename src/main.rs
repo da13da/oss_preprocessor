@@ -104,11 +104,14 @@ async fn main() {
             if compare_data.is_err() {
                 continue;
             }
+
             for file in compare_data.unwrap().files {
-                match parsers::diff::parse_file_diff(file.patch.as_str()) {
-                    Ok((_, file_diff)) => println!("{:#?}", file_diff),
-                    Err(e) => println!("Error parsing diff: {:?}", e),
+                if !file.filename.ends_with(".py") {
+                    continue;
                 }
+                let diff_parser = parsers::diff::DiffParser::new();
+                let file_diff = diff_parser.parse_file_diff(file.patch.as_str());
+                println!("{:?}", file_diff);
             }
         } else {
             println!(

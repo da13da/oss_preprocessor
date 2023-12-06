@@ -1,15 +1,10 @@
 #[derive(Debug)]
-pub struct DiffLineChange {
-    pub removed: String,
-    pub added: String,
+pub struct FileDiff {
+    pub changes: Vec<DiffChange>,
 }
 
 #[derive(Debug)]
 pub struct DiffChange {
-    pub line_changes: Vec<DiffLineChange>,
-}
-
-#[derive(Debug)]
-pub struct FileDiff {
-    pub changes: Vec<DiffChange>,
+    pub added_code: String,
+    pub removed_code: String,
 }
