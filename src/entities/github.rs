@@ -22,7 +22,7 @@ pub struct CompareData {
     behind_by: i32,
     total_commits: i32,
     commits: Vec<RootCommit>,
-    files: Vec<File>,
+    pub files: Vec<File>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

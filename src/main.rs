@@ -101,8 +101,18 @@ async fn main() {
                     latest_tag.commit.sha.as_str(),
                 )
                 .await;
+            if compare_data.is_err() {
+                continue;
+            }
 
-            // println!("{:?}", compare_data);
+            for file in compare_data.unwrap().files {
+                if !file.filename.ends_with(".py") {
+                    continue;
+                }
+                let diff_parser = parsers::diff::DiffParser::new();
+                let file_diff = diff_parser.parse_file_diff(file.patch.as_str());
+                println!("{:?}", file_diff);
+            }
         } else {
             println!(
                 "Failed to extract {:?} tag: latest={:?} current={:?}",

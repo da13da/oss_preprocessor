@@ -1,17 +1,17 @@
+pub mod diff;
+pub mod error;
+mod pipfile;
+mod poetry;
+mod yarn;
+
 use serde_json::Value;
 use std::borrow::Cow;
 use std::error::Error;
 use std::fs::{read_to_string, File};
 use std::path::{Path, PathBuf};
 use std::{fs, io};
-use toml;
 
 use crate::entities::package::Package;
-
-pub mod error;
-mod pipfile;
-mod poetry;
-mod yarn;
 
 use self::pipfile::PipfileParser;
 use self::poetry::PoetryParser;

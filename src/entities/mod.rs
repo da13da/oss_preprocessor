@@ -1,4 +1,5 @@
 mod date;
+pub mod diff;
 pub mod github;
 pub mod package;
 pub mod pipfile;
