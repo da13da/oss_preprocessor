@@ -1,6 +1,5 @@
 use clap::{parser, Parser, ValueEnum};
 use dotenv::dotenv;
-use std::borrow::BorrowMut;
 use std::env;
 use std::path::PathBuf;
 
@@ -33,7 +32,7 @@ async fn main() {
     let github_token = env::var("GITHUB_TOKEN").expect("GITHUB_TOKEN is not set in .env");
     println!("github_token: {:?}", github_token);
 
-    let lock_file_parse_client = parsers::LockFileParseClient::new(args.input).unwrap();
+    let lock_file_parse_client = parsers::lockfile::LockFileParseClient::new(args.input).unwrap();
     let mut packages = lock_file_parse_client.parse().unwrap();
 
     let pypi_client = external_apis::pypi::PypiClient::new();

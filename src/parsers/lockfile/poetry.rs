@@ -6,8 +6,8 @@ use toml;
 
 use crate::entities::package::Package;
 use crate::entities::poetry::PoetryLockFile;
-use crate::parsers::error::ParseError;
-use crate::parsers::Parser;
+use crate::parsers::lockfile::error::ParseError;
+use crate::parsers::lockfile::Parser;
 
 pub struct PoetryParser {}
 

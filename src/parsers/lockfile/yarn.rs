@@ -3,8 +3,8 @@ use std::{error::Error, fs};
 use yarn_lock_parser::{parse_str, Entry};
 
 use crate::entities::package::{Package, Source};
-use crate::parsers::error::ParseError;
-use crate::parsers::Parser;
+use crate::parsers::lockfile::error::ParseError;
+use crate::parsers::lockfile::Parser;
 
 pub struct YarnParser {}
 
@@ -16,7 +16,7 @@ impl YarnParser {
 
 impl Parser for YarnParser {
     fn parse(&self, path: &PathBuf) -> Result<Vec<Package>, ParseError> {
-        let file = fs::read_to_string(path).unwrap();
+        let file = fs::read_to_string(path).expect("failed read file");
         let entries = parse_str(&file)?;
 
         let packages = entries

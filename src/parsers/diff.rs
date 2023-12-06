@@ -1,6 +1,6 @@
 use regex::Regex;
 
-use crate::entities::diff::{DiffChange, DiffLineChange, FileDiff};
+use crate::entities::diff::{DiffChange, FileDiff};
 
 pub struct DiffParser {}
 
