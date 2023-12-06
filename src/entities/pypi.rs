@@ -14,8 +14,9 @@ pub struct PyPIPackageDetail {
 pub struct PackageInfo {
     pub name: String,
     pub version: String,
-    pub home_page: String,
+    pub home_page: Option<String>,
     pub project_urls: HashMap<String, String>,
+    pub platform: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -43,8 +44,13 @@ impl PyPIPackageDetail {
     }
 
     pub fn extract_git_url(&self) -> Option<String> {
-        if self.info.home_page.contains("github.com") {
-            return Some(self.info.home_page.clone());
+        let home_page = if self.info.home_page.is_some() {
+            self.info.home_page.clone().unwrap()
+        } else {
+            "".to_string()
+        };
+        if home_page.contains("github.com") {
+            return Some(home_page);
         }
 
         for (managed_name, project_url) in &self.info.project_urls {

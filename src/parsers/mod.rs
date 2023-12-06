@@ -2,6 +2,7 @@ pub mod diff;
 pub mod error;
 mod pipfile;
 mod poetry;
+mod yarn;
 
 use serde_json::Value;
 use std::borrow::Cow;
@@ -14,6 +15,7 @@ use crate::entities::package::Package;
 
 use self::pipfile::PipfileParser;
 use self::poetry::PoetryParser;
+use self::yarn::YarnParser;
 
 pub trait Parser {
     fn parse(&self, file_path: &PathBuf) -> Result<Vec<Package>, error::ParseError>;
@@ -53,6 +55,7 @@ impl LockFileParseClient {
         match file_name.as_ref() {
             "Pipfile.lock" => Some(Box::new(PipfileParser::new())),
             "poetry.lock" => Some(Box::new(PoetryParser::new())),
+            "yarn.lock" => Some(Box::new(YarnParser::new())),
             _ => None,
         }
     }
