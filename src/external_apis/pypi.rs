@@ -1,5 +1,4 @@
 use reqwest;
-use serde_json;
 
 use crate::entities::pypi::PyPIPackageDetail;
 use crate::external_apis::error::FetchError;

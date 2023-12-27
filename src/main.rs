@@ -35,15 +35,27 @@ async fn main() {
     let lock_file_parse_client = parsers::lockfile::LockFileParseClient::new(args.input).unwrap();
     let mut packages = lock_file_parse_client.parse().unwrap();
 
-    let pypi_client = external_apis::pypi::PypiClient::new();
+    // let pypi_client = external_apis::pypi::PypiClient::new();
+    // for package in &mut packages {
+    //     let package_detail = pypi_client
+    //         .fetch_package_detail(package.name.as_str())
+    //         .await;
+    //     match package_detail {
+    //         Ok(package_detail) => {
+    //             package.latest_version = package_detail.latest_version();
+    //             package.homepage = package_detail.extract_git_url();
+    //         }
+    //         Err(err) => {
+    //             eprintln!("Error: {}", err);
+    //         }
+    //     };
+    // }
+    let npm_client = external_apis::npm::NpmClient::new();
     for package in &mut packages {
-        let package_detail = pypi_client
-            .fetch_package_detail(package.name.as_str())
-            .await;
+        let package_detail = npm_client.fetch_package_detail(package.name.as_str()).await;
         match package_detail {
             Ok(package_detail) => {
-                package.latest_version = package_detail.latest_version();
-                package.homepage = package_detail.extract_git_url();
+                println!("{}", package_detail.name);
             }
             Err(err) => {
                 eprintln!("Error: {}", err);
