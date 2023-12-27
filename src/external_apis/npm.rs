@@ -21,6 +21,7 @@ impl NpmClient {
         package_name: &str,
     ) -> Result<NpmPackageDetail, FetchError> {
         let url = format!("{}/{}", self.url, package_name);
+        println!("{}", url);
 
         let response = self.client.get(&url).send().await?;
         if response.status() != 200 {
@@ -28,7 +29,6 @@ impl NpmClient {
         }
 
         let package_detail = response.json().await?;
-        println!("{:?}", package_detail);
 
         Ok(package_detail)
     }
