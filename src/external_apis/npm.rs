@@ -1,17 +1,17 @@
 use reqwest;
 
-use crate::entities::pypi::PyPIPackageDetail;
+use crate::entities::npm::NpmPackageDetail;
 use crate::external_apis::error::FetchError;
 
-pub struct PypiClient {
+pub struct NpmClient {
     pub url: String,
     client: reqwest::Client,
 }
 
-impl PypiClient {
+impl NpmClient {
     pub fn new() -> Self {
-        PypiClient {
-            url: "https://pypi.org/pypi".to_string(),
+        NpmClient {
+            url: "https://registry.npmjs.org".to_string(),
             client: reqwest::Client::new(),
         }
     }
@@ -19,8 +19,9 @@ impl PypiClient {
     pub async fn fetch_package_detail(
         &self,
         package_name: &str,
-    ) -> Result<PyPIPackageDetail, FetchError> {
-        let url = format!("{}/{}/json", self.url, package_name);
+    ) -> Result<NpmPackageDetail, FetchError> {
+        let url = format!("{}/{}", self.url, package_name);
+        println!("{}", url);
 
         let response = self.client.get(&url).send().await?;
         if response.status() != 200 {
